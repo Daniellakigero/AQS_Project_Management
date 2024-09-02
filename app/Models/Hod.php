@@ -14,4 +14,8 @@ class Hod extends Model
     {
         $this->attributes['password'] = Hash::make($value);
     }
+ public function employeed()
+    {
+        return $this->hasMany(Employee::class, 'hod_id');
+    }
 }

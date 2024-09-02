@@ -6,7 +6,7 @@
     <title>HOD Login</title>
 </head>
 <body>
-    <form method="POST" action="">
+    <form method="POST" action="{{ route('login') }}">
         @csrf
         <div>
             <label>Email:</label>

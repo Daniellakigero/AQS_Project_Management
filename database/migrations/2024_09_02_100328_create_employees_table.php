@@ -1,0 +1,30 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('employeed', function (Blueprint $table) {
+            $table->id('emp_id');
+            $table->string('emp_name');
+            $table->string('email_personal');
+            $table->string('email_company');
+            $table->integer('phone_number');
+            $table->integer('verification_code');
+            $table->unsignedBigInteger('hod_id');
+            $table->timestamps();
+            
+
+            $table->foreign('hod_id')->references('hod_id')->on('hod')->onDelete('cascade');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('employeed');
+    }
+};
