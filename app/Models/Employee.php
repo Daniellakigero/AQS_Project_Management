@@ -15,6 +15,7 @@ class Employee extends Model
         'email_company',
         'phone_number',
         'verification_code',
+        'hod_id'
     ];
     public function hod()
     {

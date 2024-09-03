@@ -23,6 +23,7 @@ class LoginAuthController extends Controller
         $hashedPassword = $hod->password;
         $plainPassword = $request->password;
         if (Hash::check($plainPassword, $hashedPassword)) {
+            session(['hod_id' => $hod->hod_id]);
             return redirect()->intended('dashboard'); 
         } else {
             return redirect()->back()

@@ -14,10 +14,12 @@ class EmployeeController extends Controller
             'email_company' => 'required|email|max:255',
             'phone_number' => 'required|string|max:15',
             'verification_code' => 'required|integer',
-             'hod_id' => 'exists:hod,hod_id',
         ]);
 
-        // Create new Employee instance
+         $hod_id = session('hod_id');
+     
+         $validatedData['hod_id'] = $hod_id;
+        // return response()->json($validatedData);
         $employee = Employee::create($validatedData);
 
         // Return a response (can be a view or JSON response)
