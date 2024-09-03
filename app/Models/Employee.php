@@ -21,4 +21,8 @@ class Employee extends Model
     {
         return $this->belongsTo(Hod::class, 'hod_id');
     }
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'employee_project','emp_id', 'project_id');
+    }
 }
