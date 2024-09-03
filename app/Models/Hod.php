@@ -9,7 +9,7 @@ class Hod extends Model
 {
     use HasFactory;
     protected $table = 'hod'; 
-    
+    protected $primaryKey = 'hod_id';  
   public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
