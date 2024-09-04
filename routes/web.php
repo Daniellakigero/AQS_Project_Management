@@ -5,6 +5,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\HodController;
 Route::get('/login_page', function () {
     return view('login');
 });
@@ -62,15 +63,6 @@ Route::get('/employee_delete', function () {
 
 Route::delete('/employee/delete', [EmployeeController::class, 'deleteEmployee'])->name('employee.delete');
 
-// PROJECT CRUD OPERATIONS
-
-// CREATE PPROJECT
-Route::get('/project_form', function () {
-    return view('project_form');
-});
-
-Route::get('/project_create', [ProjectController::class, 'create']);
-
 
 
 
@@ -85,3 +77,20 @@ Route::post('forgot-password', [PasswordResetController::class, 'sendResetLink']
 
 Route::get('reset-password/{token}', [PasswordResetController::class, 'showResetPasswordForm'])->name('password.reset');
 Route::post('reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
+
+
+// PROJECT CRUD OPERATIONS
+
+// CREATE PPROJECT
+Route::get('/project_form', function () {
+    return view('project_form');
+});
+
+Route::get('/project_create', [ProjectController::class, 'create']);
+
+
+Route::get('/hod/signup', function () {
+    return view('hod.signup');
+})->name('hod.signup.form');
+
+Route::post('/hod/signup', [HodController::class, 'store'])->name('hod.signup');
