@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model
 {
     use HasFactory;
-
+    protected $table = 'projects'; 
     protected $fillable = [
         'project_name',
         'description',
@@ -17,7 +17,7 @@ class Project extends Model
         'status',
         'created_by',
         'hod_id',
-        // 'emp_id',
+        'emp_id',
     ];
 
     public function employeed()

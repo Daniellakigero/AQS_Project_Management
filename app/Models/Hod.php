@@ -10,12 +10,24 @@ class Hod extends Model
     use HasFactory;
     protected $table = 'hod'; 
     protected $primaryKey = 'hod_id';  
+  
+// HASHING
+
   public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
     }
- public function employeed()
+
+//  RELATIONSHIP TO EMPLOYEE 
+  public function employeed()
     {
         return $this->hasMany(Employee::class, 'hod_id');
     }
+
+// RELATIONSHIP TO PROJECTS
+   public function projects()
+    {
+        return $this->hasMany(Project::class, 'hod_id');
+    }
 }
+
