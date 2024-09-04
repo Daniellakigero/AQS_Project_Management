@@ -2,6 +2,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginAuthController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\PasswordResetController;
 Route::get('/login_page', function () {
     return view('login');
 });
@@ -59,4 +62,26 @@ Route::get('/employee_delete', function () {
 
 Route::delete('/employee/delete', [EmployeeController::class, 'deleteEmployee'])->name('employee.delete');
 
+// PROJECT CRUD OPERATIONS
 
+// CREATE PPROJECT
+Route::get('/project_form', function () {
+    return view('project_form');
+});
+
+Route::get('/project_create', [ProjectController::class, 'create']);
+
+
+
+
+// PASSWORD RESET
+
+// FORGOT FORM AND SENDLINKRESET
+Route::get('forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+
+
+// RESETTNG THE PASSWORD PROVIDED 
+
+Route::get('reset-password/{token}', [PasswordResetController::class, 'showResetPasswordForm'])->name('password.reset');
+Route::post('reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
