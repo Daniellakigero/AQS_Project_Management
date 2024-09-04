@@ -17,7 +17,7 @@ class Project extends Model
         'status',
         'created_by',
         'hod_id',
-        // 'emp_id',
+        'emp_id',
     ];
 
     public function employeed()
