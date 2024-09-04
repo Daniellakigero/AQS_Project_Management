@@ -2,6 +2,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginAuthController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\HodController;
 Route::get('/login_page', function () {
     return view('login');
 });
@@ -59,4 +61,12 @@ Route::get('/employee_delete', function () {
 
 Route::delete('/employee/delete', [EmployeeController::class, 'deleteEmployee'])->name('employee.delete');
 
+// CREATE PROJECTS
+Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+Route::post('/projects/store', [ProjectController::class, 'createProject'])->name('projects.store');
 
+Route::get('/hod/signup', function () {
+    return view('hod.signup');
+})->name('hod.signup.form');
+
+Route::post('/hod/signup', [HodController::class, 'store'])->name('hod.signup');
