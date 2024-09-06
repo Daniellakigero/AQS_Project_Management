@@ -1,111 +1,179 @@
 <?php
-namespace App\Http\Controllers;
 
+namespace App\Http\Controllers;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use App\Models\Employee;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Invitation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class EmployeeController extends Controller
-
 {
-
-//  CREATE AN EMPLOYEE
-
-    public function createEmployee(Request $request)
+     public function handleForm(Request $request)
     {
+        $action = $request->input('action');
+
+        // Validate input
         $validatedData = $request->validate([
-            'emp_name' => 'required|string|max:255',
-            'email_personal' => 'required|email|max:255',
+            'emp_fullname' => 'required|string|max:255',
             'email_company' => 'required|email|max:255',
-            'phone_number' => 'required|string|max:15',
-            'verification_code' => 'required|integer',
+            'email_personal' => 'required|email|max:255',
+            'department' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'defaultPassword' => 'required|string|min:6',
         ]);
 
-         $hod_id = session('hod_id');
-     
-        $validatedData['hod_id'] = $hod_id;
-        $employee = Employee::create($validatedData);
-        return response()->json(['message' => 'Employee created successfully', 'employee' => $employee], 201);
+        // Check if hod_id is available in the session
+        $validatedData['hod_id'] = session('hod_id');
+
+        if ($action === 'invite') {
+            // Generate token and store in the invitation table
+            $token = Str::random(60);
+            Invitation::create([
+                'email_personal' => $validatedData['email_personal'],
+                'token' => $token,
+            ]);
+
+            // Send an invitation email
+            $this->sendInvitation($validatedData, $token);
+            return response()->json(['message' => 'Invitation sent successfully'], 200);
+        } else {
+            // Create the employee
+            $employee = Employee::create($validatedData);
+            return response()->json(['message' => 'Employee created successfully', 'employee' => $employee], 201);
+        }
     }
 
-// READ AN EMPLOYEE BY LIST AND SEARCH
+    private function sendInvitation($data, $token)
+    {
+        $to = $data['email_personal']; // Send invitation to personal email
+        $subject = 'Invitation to Join';
+        $verificationUrl = url('/verify/' . $token); // Adjust URL as needed
+        $message = "You have been invited. Please use the following default password to update your password: {$data['defaultPassword']}. Click the following link to verify: {$verificationUrl}";
 
-   public function getEmployeeAll(){
-       $employees = Employee::all();
-       return response()->json($employees);
+        Mail::raw($message, function($mail) use ($to, $subject) {
+            $mail->to($to)
+                 ->subject($subject);
+        });
     }
 
+// Handle employee authentication and password update
 
-public function employee_Search(Request $request)
+
+
+    public function showResetForm($token)
+    {
+        $exists = DB::table('invitations')->where('token', $token)->exists();
+
+        if ($exists) {
+            return view('employee_reset_form')->with('token', $token);
+        } else {
+            return  'Invalid token.';
+        }
+    }
+
+public function employee_authenticate(Request $request)
 {
-
-    $query = $request->input('query');
-    if (empty($query)) {
-        return response()->json(['message' => 'Query cannot be empty.'], 400);
-    }
-    $employees = Employee::where('emp_name', 'like', "%$query%")
-                         ->orWhere('email_personal', $query)
-                         ->orWhere('email_company', $query)
-                         ->get();
-    if ($employees->isEmpty()) {
-        return response()->json(['message' => 'Please use emp_name, email_personal, or email_company to search.'], 404);
-    }
-
-    return response()->json($employees);
-    }
-
-// UPDATE AN EMPLOYEE 
-
-public function employee_edit(Request $request)
-{
-    
-    $validated = $request->validate([
-        'emp_id' => 'required|exists:employeed,emp_id', // Ensure the table name is correct
-        'emp_name' => 'required|string|max:255',
-        'email_personal' => 'required|email',
-        'email_company' => 'required|email',
-        'phone_number' => 'required|string|max:15',
-        'verification_code' => 'required|string|max:10',
+    // Validate the request
+    $request->validate([
+        'defaultPassword' => 'required|string',
+        'newPassword' => 'required|string|min:2',
+        'confirm_password' => 'required|string|min:2|same:newPassword'
     ]);
 
-     
-    $employee = Employee::where('emp_id', $request->input('emp_id'))->first();
-    if ($employee) {
-        // Update employee details
-        $employee->emp_name = $request->input('emp_name');
-        $employee->email_personal = $request->input('email_personal');
-        $employee->email_company = $request->input('email_company');
-        $employee->phone_number = $request->input('phone_number');
-        $employee->verification_code = $request->input('verification_code');
-        $employee->hod_id = session('hod_id');
-        // return $employee;
-        $employee->save();
+    // Fetch all employees
+    $employees = Employee::all();
+    foreach ($employees as $employee) {
+        if (Hash::check($request->input('defaultPassword'), $employee->defaultPassword)) {
+            $employee->defaultPassword = Hash::make($request->input('newPassword'));
+            $employee->save();
 
-        return 'Employee updated successfully!';
-      } else {
-        return 'Employee not found.';
-      }
+            return response()->json(['message' => 'Password updated successfully!'], 200);
+        }
+    }
+
+    return response()->json(['message' => 'The default password is incorrect.'], 400);
 }
 
 
-// DELETE AN EMPLOYEE 
 
 
-public function deleteEmployee(Request $request)
-{
-    $validated = $request->validate([
-        'emp_id' => 'required|exists:employeed,emp_id', // Ensure emp_id exists in the database
-    ]);
-    $employee = Employee::where('emp_id', $request->input('emp_id'))->first();
 
-    if ($employee) {
-        $employee->delete();
 
-        return response()->json(['message' => 'Employee deleted successfully!'], 200);
-    } else {
-        return response()->json(['message' => 'Employee not found.'], 404);
+    // READ ALL EMPLOYEES
+    public function getEmployeeAll()
+    {
+        $employees = Employee::all();
+        return response()->json($employees);
+    }
+
+    // SEARCH EMPLOYEES
+    public function employee_Search(Request $request)
+    {
+        $query = $request->input('query');
+        if (empty($query)) {
+            return response()->json(['message' => 'Query cannot be empty.'], 400);
+        }
+
+        $employees = Employee::where('emp_fullname', 'like', "%$query%")
+                             ->orWhere('email_personal', $query)
+                             ->orWhere('email_company', $query)
+                             ->get();
+
+        if ($employees->isEmpty()) {
+            return response()->json(['message' => 'No employees found. Please use emp_fullname, email_personal, or email_company to search.'], 404);
+        }
+
+        return response()->json($employees);
+    }
+
+    // UPDATE AN EMPLOYEE
+    public function employee_edit(Request $request)
+    {
+        $validated = $request->validate([
+            'emp_id' => 'required|exists:employeed,emp_id',
+            'emp_fullname' => 'required|string|max:255',
+            'email_personal' => 'required|email',
+            'email_company' => 'required|email',
+            'department' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'defaultPassword' => 'required|string|min:6',
+        ]);
+
+        $employee = Employee::where('emp_id', $request->input('emp_id'))->first();
+        if ($employee) {
+            // Update employee details
+            $employee->emp_fullname = $request->input('emp_fullname');
+            $employee->email_personal = $request->input('email_personal');
+            $employee->email_company = $request->input('email_company');
+            $employee->department = $request->input('department');
+            $employee->position = $request->input('position');
+            $employee->defaultPassword = $request->input('defaultPassword');
+            $employee->hod_id = session('hod_id');  // Assuming hod_id is stored in session
+            $employee->save();
+
+            return response()->json(['message' => 'Employee updated successfully!']);
+        } else {
+            return response()->json(['message' => 'Employee not found.'], 404);
+        }
+    }
+
+    // DELETE AN EMPLOYEE
+    public function deleteEmployee(Request $request)
+    {
+        $validated = $request->validate([
+            'emp_id' => 'required|exists:employeed,emp_id',
+        ]);
+
+        $employee = Employee::where('emp_id', $request->input('emp_id'))->first();
+
+        if ($employee) {
+            $employee->delete();
+            return response()->json(['message' => 'Employee deleted successfully!'], 200);
+        } else {
+            return response()->json(['message' => 'Employee not found.'], 404);
+        }
     }
 }
-
-}
-
-

@@ -10,11 +10,12 @@ return new class extends Migration
     {
         Schema::create('employeed', function (Blueprint $table) {
             $table->id('emp_id');
-            $table->string('emp_name');
-            $table->string('email_personal');
+            $table->string('emp_fullname');
             $table->string('email_company');
-            $table->integer('phone_number');
-            $table->integer('verification_code');
+            $table->string('department');
+            $table->string('position');
+            $table->string('defaultPassword');
+            $table->string('email_personal');
             $table->unsignedBigInteger('hod_id');
             $table->timestamps();
             

@@ -23,7 +23,17 @@ Route::get('create', function () {
     return view('create');
 });
 
-Route::post('/create_employee', [EmployeeController::class, 'createEmployee'])->name('createEmployee');
+Route::post('/create_employee', [EmployeeController::class, 'handleForm'])->name('createEmployee');
+
+// EMPLOYEE AUTHENTICATE 
+
+Route::get('/verify/{token}', [EmployeeController::class, 'showResetForm'])->name('show_reset_form');
+
+Route::post('/verify', [EmployeeController::class, 'employee_authenticate'])->name('employee_authenticate');
+
+
+
+
 
 Route::get('/check-session', function () {
     $hodId = session('hod_id');
@@ -33,8 +43,6 @@ Route::get('/check-session', function () {
     return  $hodId ;
 });
 
-
-Route::post('/create_project', [ProjectController::class, 'createProject'])->name('createProject');
 
 Route::get('/check-session', function () {
     return session('hod_id') ?? 'No HOD ID in session';

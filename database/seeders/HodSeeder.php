@@ -12,7 +12,6 @@ class HodSeeder extends Seeder
         $hod = new Hod();
         $hod->hod_name = 'Hinda';
         $hod->email = 'daniellakigero@gmail.com';
-        $hod->phone_number = '0788837621';
         $hod->password = 'aqs123'; 
         $hod->save();
     }

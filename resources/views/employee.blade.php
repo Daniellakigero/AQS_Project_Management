@@ -9,27 +9,35 @@
     <form method="POST" action="{{ route('createEmployee') }}">
         @csrf
         <div>
-            <label>Name:</label>
-            <input type="text" name="emp_name" required>
+            <label>Full Name:</label>
+            <input type="text" name="emp_fullname" required>
+        </div>
+       
+        <div>
+            <label>Email Company:</label>
+            <input type="email" name="email_company" required>
+        </div>
+        <div>
+            <label>Department:</label>
+            <input type="text" name="department" required>
+        </div>
+        <div>
+            <label>Position:</label>
+            <input type="text" name="position" required>
+        </div>
+        <div>
+            <label>Default Password:</label>
+            <input type="password" name="defaultPassword" required>
         </div>
         <div>
             <label>Email Personal:</label>
             <input type="email" name="email_personal" required>
         </div>
-<div>
-            <label>Email Company:</label>
-            <input type="email" name="email_company" required>
-        </div>
-<div>
-            <label>Phone Number:</label>
-            <input type="text" name="phone_number" required>
-        </div>
-<div>
-            <label>Verification_code:</label>
-            <input type="text" name="verification_code" required>
-        </div>
         <div>
             <button type="submit">Send</button>
+        </div>
+        <div>
+              <button type="submit" name="action" value="invite">Send Invitation</button>
         </div>
     </form>
 

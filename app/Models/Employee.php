@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 
 class Employee extends Model
 {
@@ -11,12 +12,13 @@ class Employee extends Model
    protected $table = 'employeed';
    protected $primaryKey = 'emp_id';  
    protected $fillable = [
-        'emp_name',
-        'email_personal',
-        'email_company',
-        'phone_number',
-        'verification_code',
-        'hod_id'
+    'emp_fullname',
+    'email_personal',
+    'email_company',
+    'department',
+    'position',
+    'defaultPassword',
+    'hod_id'
     ];
     public function hod()
     {
@@ -25,5 +27,9 @@ class Employee extends Model
     public function projects()
     {
         return $this->belongsToMany(Project::class, 'employee_project','emp_id', 'project_id');
+    }
+   public function setDefaultPasswordAttribute($value)
+    {
+        $this->attributes['defaultPassword'] = Hash::make($value);
     }
 }
