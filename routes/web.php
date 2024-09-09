@@ -4,6 +4,7 @@ use App\Http\Controllers\LoginAuthController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\HodController;
 Route::get('/login_page', function () {
@@ -102,3 +103,13 @@ Route::get('/hod/signup', function () {
 })->name('hod.signup.form');
 
 Route::post('/hod/signup', [HodController::class, 'store'])->name('hod.signup');
+
+
+
+// CRUD OF TEAM
+
+// CREATE A TEAM
+Route::get('/team/create', function () {
+    return view('team.create');
+})->name('team.create');
+Route::post('/team/store', [TeamController::class, 'store'])->name('team.store');
