@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreign('project_id')->references('project_id')->on('projects')->onDelete('cascade');
 
             $table->index(['emp_id', 'project_id']);
+
+          
         });
     }
 

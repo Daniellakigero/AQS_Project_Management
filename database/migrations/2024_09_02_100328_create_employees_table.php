@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,13 +18,14 @@ return new class extends Migration
             $table->unsignedBigInteger('hod_id');
             $table->timestamps();
             
-
             $table->foreign('hod_id')->references('hod_id')->on('hod')->onDelete('cascade');
         });
     }
 
-    public function down(): void
-    {
-        Schema::dropIfExists('employeed');
-    }
+ public function down(): void
+{
+
+    Schema::dropIfExists('employeed');
+}
+
 };

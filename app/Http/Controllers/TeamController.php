@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Team;
 class TeamController extends Controller
 {
-    // CREATE  A TEAM
+    // CREATE  A TEAM MEMBER
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -20,4 +20,17 @@ class TeamController extends Controller
         Team::create($validatedData);
         return redirect()->back()->with('success', 'Team member created successfully!');
     }
+    // READ A TEAM MEMBER
+     public function read()
+    {
+        $teams = Team::all();
+        return response()->json($teams);
+    }
+    // READ A TEAM MEMBER BY ID
+     public function show($id)
+    {
+        $team = Team::findOrFail($id);
+        return response()->json($team);
+    }
+
 }

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('teams', function (Blueprint $table) {
-            $table->id();
+            $table->id('team_id');
             $table->string('fullname');
             $table->string('id_number')->unique();
             $table->string('nationality');
@@ -19,9 +19,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('teams');
