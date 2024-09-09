@@ -99,9 +99,6 @@ public function employee_authenticate(Request $request)
 
 
 
-
-
-
     // READ ALL EMPLOYEES
     public function getEmployeeAll()
     {

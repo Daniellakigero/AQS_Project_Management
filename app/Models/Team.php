@@ -12,6 +12,7 @@ class Team extends Model
     protected $table = 'teams';
     protected $primaryKey = 'team_id';
     protected $fillable = [
+        'team_id',
         'fullname',
         'id_number',
         'nationality',

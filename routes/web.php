@@ -116,13 +116,11 @@ Route::get('/team/create', function () {
 })->name('team.create');
 Route::post('/team/store', [TeamController::class, 'store'])->name('team.store');
 
-<<<<<<< HEAD
 // READ A TEAM
 Route::get('/team', [TeamController::class, 'read'])->name('team.read');
 
 // // READ A TEAM MEMBER BY ID
 Route::get('/team/{id}', [TeamController::class, 'show'])->name('team.show');
-=======
 // TEAM UPDATE 
 Route::get('/updateTeam_check', function () {
     return view('team.updateTeam_check');
@@ -138,4 +136,3 @@ Route::get('/team_delete', function () {
 Route::delete('/team/delete', [TeamController::class, 'delete'])->name('team.delete');
 
 //Route::delete('/team', [TeamController::class, 'destroy'])->name('team.delete');
->>>>>>> ef46c77b4bfbab01dcfe0010ef38eb0b2b24a0c9

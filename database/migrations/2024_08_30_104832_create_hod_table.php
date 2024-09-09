@@ -15,15 +15,20 @@ return new class extends Migration
             $table->id('hod_id');
             $table->string('hod_name');
             $table->string('email')->unique(); 
-           // $table->string('phone_number')->nullable(); 
             $table->string('password'); 
             $table->timestamps(); 
         });
     }
 
    
-    public function down(): void
-    {
-        Schema::dropIfExists('hod');
+ public function down(): void
+{
+    if (Schema::hasTable('employeed')) {
+        Schema::table('employeed', function (Blueprint $table) {
+            $table->dropForeign(['hod_id']);
+        });
     }
+    Schema::dropIfExists('hod');
+}
+
 };

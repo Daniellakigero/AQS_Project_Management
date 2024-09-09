@@ -47,7 +47,7 @@ class TeamController extends Controller
         ]);
         
         $team = Team::where('team_id', $request->input('team_id'))->first();
-
+        
         if ($team) {
             $team->fullname = $request->input('fullname');
             $team->id_number = $request->input('id_number');
@@ -66,20 +66,15 @@ class TeamController extends Controller
      // DELETE A TEAM MEMBER
      public function delete(Request $request)
      {
-         // Validate the request data
          $validated = $request->validate([
              'team_id' => 'required|exists:teams,team_id',
          ]);
- 
-         // Find the team member by team_id
          $team = Team::where('team_id', $request->input('team_id'))->first();
  
          if ($team) {
-             // Delete the team member
              $team->delete();
              return response()->json(['message' => 'Team member deleted successfully!'], 200);
          } else {
-             // If the team member is not found, return an error response
              return response()->json(['message' => 'Team member not found.'], 404);
          }
      }

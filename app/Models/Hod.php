@@ -60,9 +60,5 @@ class Hod extends Model
         return $this->hasMany(Employee::class, 'hod_id');
     }
 
-    // RELATIONSHIP TO PROJECTS
-    public function projects()
-    {
-        return $this->hasMany(Project::class, 'hod_id');
-    }
+
 }

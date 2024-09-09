@@ -18,15 +18,11 @@ class Employee extends Model
     'department',
     'position',
     'defaultPassword',
-    'hod_id'
+    'hod_id',
     ];
     public function hod()
     {
         return $this->belongsTo(Hod::class, 'hod_id');
-    }
-    public function projects()
-    {
-        return $this->belongsToMany(Project::class, 'employee_project','emp_id', 'project_id');
     }
    public function setDefaultPasswordAttribute($value)
     {

@@ -16,8 +16,7 @@ return new class extends Migration
             $table->string('defaultPassword');
             $table->string('email_personal');
             $table->unsignedBigInteger('hod_id');
-            $table->timestamps();
-            
+            $table->timestamps();     
             $table->foreign('hod_id')->references('hod_id')->on('hod')->onDelete('cascade');
         });
     }
