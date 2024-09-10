@@ -2,41 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Hod;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginAuthController extends Controller
 {
-   public function login(Request $request)
-{
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+        $hod = Hod::where('email', $request->email)->first();
 
-  
-    $hod = Hod::where('email', $request->email)->first();
-
-    if ($hod) {
-        $hashedPassword = $hod->password;
-        $plainPassword = $request->password;
-        if (Hash::check($plainPassword, $hashedPassword)) {
-            session([
-                'hod_id' => $hod->hod_id,
-                'hod_name' => $hod->hod_name
-            ]);
-            return redirect()->intended('dashboard'); 
+        if ($hod && Hash::check($request->password, $hod->password)) {
+            $token = JWTAuth::fromUser($hod);
+            return response()->json(['message' => 'Login successful', 'token' => $token]);
         } else {
-            return redirect()->back()
-                ->withErrors(['email' => 'Invalid credentialskkkk.'])
-                ->withInput();
+            return response()->json(['error' => 'Invalid credentials'], 401);
         }
-    } else {
-        return redirect()->back()
-            ->withErrors(['email' => 'Invalid credentials.'])
-            ->withInput();
     }
-}
 }

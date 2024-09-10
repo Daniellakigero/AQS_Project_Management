@@ -1,54 +1,50 @@
-<!-- resources/views/projects/create_project.blade.php -->
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register a New Project</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <title>Create a New Project</title>
 </head>
 <body>
     <div class="container">
-        <h2>Register a New Project</h2>
-        <form action="{{ route('projects.store') }}" method="POST">
-            @csrf
-            <div>
-                <label for="project_name">Project Name:</label>
-                <input type="text" name="project_name" id="project_name" required>
-            </div>
-        
-            <div>
-                <label for="description">Description:</label>
-                <textarea name="description" id="description" required></textarea>
-            </div>
-        
-            <div>
-                <label for="start_date">Start Date:</label>
-                <input type="date" name="start_date" id="start_date" required>
-            </div>
-        
-            <div>
-                <label for="end_date">End Date:</label>
-                <input type="date" name="end_date" id="end_date">
-            </div>
-        
-            <div>
-                <label for="status">Status:</label>
-                <input type="text" name="status" id="status" required>
-            </div>
-        
-            <div>
-                <label for="assign_to">Assign To:</label>
-                <select name="assign_to[]" id="assign_to" multiple required>
-                    @foreach($employees as $employee)
-                        <option value="{{ $employee->emp_id }}">{{ $employee->emp_name }}</option>
+        <h2>Create a New Project</h2>
+
+        <!-- Display validation errors -->
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
                     @endforeach
-                </select>
+                </ul>
             </div>
-        
-            <button type="submit">Register Project</button>
+        @endif
+
+        <!-- Form for creating a project with a file upload -->
+        <form action="{{route('project_create')}}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <div class="mb-3">
+                <label for="project_name" class="form-label">Project Name</label>
+                <input type="text" class="form-control" id="project_name" name="project_name" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="project_description" class="form-label">Project Description</label>
+                <textarea class="form-control" id="project_description" name="project_description" rows="4" required></textarea>
+                <label for="project_description" class="form-label">Or Upload Project (Text or PDF)</label>
+                <input type="file" class="form-control" id="project_file" name="project_file" accept=".txt,.pdf">
+            </div>
+
+            <div class="mb-3">
+                <label for="project_category" class="form-label">Project Category</label>
+                <input type="text" class="form-control" id="project_category" name="project_category" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="client" class="form-label">Client</label>
+                <input type="text" class="form-control" id="client" name="client" required>
+            </div>
+            <!-- The hod_id will be automatically filled from the session -->
+            <button type="submit" class="btn btn-primary">Create Project</button>
         </form>
-        
     </div>
 </body>
 </html>
