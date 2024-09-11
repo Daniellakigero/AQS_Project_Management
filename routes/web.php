@@ -14,10 +14,10 @@ Route::get('/login_page', function () {
 // Route::post('/login', [LoginAuthController::class, 'login'])->name('login');
 
 // HOD SIGNUP
-Route::get('/hod/signup', function () {
-    return view('hod.signup');
-})->name('hod.signup.form');
-Route::post('/hod/signup', [HodController::class, 'store'])->name('hod.signup');
+// Route::get('/hod/signup', function () {
+//     return view('hod.signup');
+// })->name('hod.signup.form');
+// Route::post('/hod/signup', [HodController::class, 'store'])->name('hod.signup');
 
 // PASSWORD RESET FOR HOD
 Route::get('forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');

@@ -17,7 +17,7 @@
         @endforeach
     </ul>
     @endif
-    <form action="{{ route('hod.signup') }}" method="POST">
+    <form action="/api/hod/signup" method="POST">
         @csrf
         <label for="first_name">First Name:</label>
         <input type="text" id="first_name" name="first_name" required>
