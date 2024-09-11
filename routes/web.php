@@ -7,28 +7,14 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\HodController;
 
-// HOD LOGIN PAGE
-Route::get('/login_page', function () {
-    return view('login');
-});
-// Route::post('/login', [LoginAuthController::class, 'login'])->name('login');
 
 // HOD SIGNUP
-Route::get('/hod/signup', function () {
-    return view('hod.signup');
-})->name('hod.signup.form');
-Route::post('/hod/signup', [HodController::class, 'store'])->name('hod.signup');
+// Route::get('/hod/signup', function () {
+//     return view('hod.signup');
+// })->name('hod.signup.form');
+// Route::post('/hod/signup', [HodController::class, 'store']);
 
-// PASSWORD RESET FOR HOD
-Route::get('forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');
-Route::post('forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
-Route::get('reset-password/{token}', [PasswordResetController::class, 'showResetPasswordForm'])->name('password.reset');
-Route::post('reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
 
-// CHECK SESSIONS
-Route::get('/check-session', function () {
-    return session('hod_id') ?? 'No HOD ID in session';
-});
 
 // EMPLOYEE CRUD OPERATION
 Route::get('/employee', function () {
@@ -52,9 +38,3 @@ Route::get('/team/{id}', [TeamController::class, 'show'])->name('team.show');
 Route::put('/team/edit', [TeamController::class, 'edit'])->name('team.update');
 Route::delete('/team/delete', [TeamController::class, 'delete'])->name('team.delete');
 
-// PROJECT CRUD OPERATIONS
-Route::get('/project_updates', function () {
-    return view('projects.test_project');
-});
-// Use update method for PUT requests
-Route::match(['post', 'put'], '/project_update', [ProjectController::class, 'update'])->name('project_update');
