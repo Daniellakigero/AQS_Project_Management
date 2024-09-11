@@ -53,7 +53,8 @@ Route::put('/team/edit', [TeamController::class, 'edit'])->name('team.update');
 Route::delete('/team/delete', [TeamController::class, 'delete'])->name('team.delete');
 
 // PROJECT CRUD OPERATIONS
-// Route::get('/project/form', function () {
-//     return view('projects.create_project');
-// });
-// Route::post('/project_create', [ProjectController::class, 'create'])->name('project_create');
+Route::get('/project_updates', function () {
+    return view('projects.test_project');
+});
+// Use update method for PUT requests
+Route::match(['post', 'put'], '/project_update', [ProjectController::class, 'update'])->name('project_update');

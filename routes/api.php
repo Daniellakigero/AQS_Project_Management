@@ -11,11 +11,15 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [LoginAuthController::class, 'login'])->name('login');
 
-Route::middleware('auth:api')->group(function () {
-  Route::post('/project_create', [ProjectController::class, 'create']);
-  Route::get('/projects', [ProjectController::class, 'get_all']);
-  Route::get('/projects/{id}', [ProjectController::class, 'show']);
-  Route::delete('/projects/delete/{id}', [ProjectController::class, 'destroy']);
-  Route::put('/projects/update/{id}', [ProjectController::class, 'update']);
+use App\Http\Middleware\JWTAuthenticate;
+
+Route::middleware(JWTAuthenticate::class)->group(function () {
+    Route::post('/project_create', [ProjectController::class, 'create']);
+    Route::get('/projects', [ProjectController::class, 'get_all']);
+    Route::get('/projects/{id}', [ProjectController::class, 'show']);
+    Route::delete('/projects/delete/{id}', [ProjectController::class, 'destroy']);
+    Route::put('/update/{id}', [ProjectController::class, 'update']);
+
 });
+
 
