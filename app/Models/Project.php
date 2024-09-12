@@ -23,4 +23,9 @@ class Project extends Model
     {
         return $this->belongsTo(Hod::class,'hod_id');
     }
+// RELTIONSHIP WITH TASKS
+ public function tasks()
+    {
+        return $this->hasMany(Task::class, 'project_id');
+    }
 }
