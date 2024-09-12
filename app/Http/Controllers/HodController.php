@@ -3,30 +3,29 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Hod;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator; 
 class HodController extends Controller
 {
-    public function store(Request $request)
-    {
-        // Validate the request
-        $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:hod,email',
-            'password' => 'required|string|min:8',
-        ]);
+   public function signup(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'hod_name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:hod',
+        'password' => 'required|string|min:8|confirmed',
+    ]);
 
-        // Combine first and last names to create the full name
-        $fullName = $validatedData['first_name'] . ' ' . $validatedData['last_name'];
-
-        // Create a new HOD
-        Hod::create([
-            'hod_name' => $fullName,
-            'email' => $validatedData['email'],
-            'password' => $validatedData['password'],
-        ]);
-
-        // Redirect or return a response
-        return redirect()->route('hod.signup.form')->with('success', 'HOD successfully registered!');
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
     }
+
+    $hod = HOD::create([
+        'hod_name' => $request->hod_name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+    ]);
+
+    return response()->json(['message' => 'HOD registered successfully', 'hod' => $hod], 201);
+}
+
 }
