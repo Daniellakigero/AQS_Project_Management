@@ -48,4 +48,7 @@ class Hod extends Authenticatable implements JWTSubject
         ];
     }
    
+
+
+
 }

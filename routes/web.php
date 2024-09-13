@@ -6,7 +6,8 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\HodController;
-
+use App\Http\Controllers\PusherController;
+use App\Http\Controllers\MessageController;
 
 // HOD SIGNUP
 // Route::get('/hod/signup', function () {
@@ -46,3 +47,8 @@ Route::get('/team/{id}', [TeamController::class, 'show'])->name('team.show');
 Route::put('/team/edit', [TeamController::class, 'edit'])->name('team.update');
 Route::delete('/team/delete', [TeamController::class, 'delete'])->name('team.delete');
 
+
+// 
+Route::get('/',  [PusherController::class, 'index']);
+Route::post('/broadcast',  [PusherController::class, 'broadcast']);
+Route::post('/receive',  [PusherController::class, 'receive']);

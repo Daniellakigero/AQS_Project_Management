@@ -47,6 +47,7 @@ Route::middleware(JWTAuthenticate::class)->group(function () {
     Route::get('/employee/search', [EmployeeController::class, 'employee_Search']);
     Route::put('/employee/edit/{id}', [EmployeeController::class, 'employee_edit']);
     Route::delete('/employee/delete/{id}', [EmployeeController::class, 'deleteEmployee']);
+    Route::post('/employee/login', [EmployeeController::class, 'employee_login']);
 });
 
 
@@ -54,4 +55,8 @@ Route::middleware(JWTAuthenticate::class)->group(function () {
 
 Route::middleware(JWTAuthenticate::class)->group(function () {
     Route::post('/tasks', [TaskController::class, 'create']);
+    Route::get('/tasks/list', [TaskController::class, 'tasklist']);
+    Route::get('/tasks/list/{id}', [TaskController::class, 'show']);
+    Route::put('/tasks/update/{id}', [TaskController::class, 'update']);
+    Route::delete('/tasks/delete/{id}', [TaskController::class, 'delete']);
 });

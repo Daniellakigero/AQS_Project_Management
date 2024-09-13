@@ -219,4 +219,36 @@ public function employee_edit(Request $request, $id)
             return response()->json(['message' => 'Employee not found.'], 404);
         }
     }
+
+
+// EMPLOYEE LOGIN
+public function employee_login(Request $request)
+{
+    $request->validate([
+        'email_company' => 'required|email',
+        'defaultPassword' => 'required|string|size:6',
+    ]);
+
+    $employee = Employee::where('email_company', $request->input('email_company'))
+                        ->where('processed', true)
+                        ->where('verified', true)
+                        ->first();
+
+    if (!$employee) {
+        return response()->json(['message' => 'Employee not found or not verified.'], 404);
+    }
+
+    if (Hash::check($request->input('defaultPassword'), $employee->defaultPassword)) {
+        $token = JWTAuth::fromUser($employee);
+
+        return response()->json([
+            'message' => 'Login successful!',
+            'token' => $token,
+            'employee' => $employee
+        ], 200);
+    } else {
+        return response()->json(['message' => 'Invalid credentials.'], 401);
+    }
+}
+
 }

@@ -12,7 +12,7 @@ class Task extends Model
     protected $primaryKey = 'task_id';
     public $timestamps = true;
 
-    protected $fillable = ['title', 'description','assign_to', 'project_id', 'emp_id'];
+    protected $fillable = ['title', 'description','assign_to', 'start_date','due_date','project_id', 'emp_id'];
 
 // RELATIONSHIP WITH PROJECT
     public function projects()
