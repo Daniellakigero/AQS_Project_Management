@@ -18,10 +18,10 @@ class Hod extends Authenticatable implements JWTSubject
     protected $fillable = ['hod_name', 'email', 'password']; 
 
     // HASHING
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = Hash::make($value);
-    }
+    // public function setPasswordAttribute($value)
+    // {
+    //     $this->attributes['password'] = Hash::make($value);
+    // }
 
     // RELATIONSHIP TO EMPLOYEE
     public function employees()
