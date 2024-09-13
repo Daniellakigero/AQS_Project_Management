@@ -12,13 +12,15 @@ class Employee extends Model
    protected $table = 'employeed';
    protected $primaryKey = 'emp_id';  
    protected $fillable = [
-    'emp_fullname',
-    'email_personal',
-    'email_company',
-    'department',
-    'position',
-    'defaultPassword',
-    'hod_id',
+        'emp_fullname',
+        'email_personal',
+        'email_company',
+        'department',
+        'position',
+        'defaultPassword',
+        'processed', 
+        'verified',   
+        'hod_id',
     ];
     public function hod()
     {
@@ -27,5 +29,11 @@ class Employee extends Model
    public function setDefaultPasswordAttribute($value)
     {
         $this->attributes['defaultPassword'] = Hash::make($value);
+    }
+
+//   RELATIONSHIP WITH TASK 
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'emp_id');
     }
 }

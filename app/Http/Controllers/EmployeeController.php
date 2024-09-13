@@ -8,93 +8,125 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Invitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class EmployeeController extends Controller
 {
-     public function handleForm(Request $request)
-    {
-        $action = $request->input('action');
 
-        // Validate input
-        $validatedData = $request->validate([
+    
+// CREATE EMPLOYEE WITH SENT RESET LINK
+public function create_employee(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'emp_fullname' => 'required|string|max:255',
-            'email_company' => 'required|email|max:255',
-            'email_personal' => 'required|email|max:255',
+            'email_company' => 'required|email|unique:employeed,email_company',
             'department' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            'defaultPassword' => 'required|string|min:6',
+            'defaultPassword' => 'required|string|size:6',
+            'email_personal' => 'nullable|email',
         ]);
 
-        // Check if hod_id is available in the session
-        $validatedData['hod_id'] = session('hod_id');
-
-        if ($action === 'invite') {
-            // Generate token and store in the invitation table
-            $token = Str::random(60);
-            Invitation::create([
-                'email_personal' => $validatedData['email_personal'],
-                'token' => $token,
-            ]);
-
-            // Send an invitation email
-            $this->sendInvitation($validatedData, $token);
-            return response()->json(['message' => 'Invitation sent successfully'], 200);
-        } else {
-            // Create the employee
-            $employee = Employee::create($validatedData);
-            return response()->json(['message' => 'Employee created successfully', 'employee' => $employee], 201);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
+
+        $validatedData = $validator->validated();
+        \Log::info('Validated data:', ['data' => $validatedData]);
+        $user = JWTAuth::parseToken()->authenticate();
+        $hod_id = $user->hod_id;
+
+         $employee = Employee::create([
+        'emp_fullname' => $validatedData['emp_fullname'],
+        'email_company' => $validatedData['email_company'],
+        'department' => $validatedData['department'],
+        'position' => $validatedData['position'],
+        'defaultPassword' => $validatedData['defaultPassword'], // No Hash::make()
+        'email_personal' => $validatedData['email_personal'],
+        'hod_id' => $hod_id,
+    ]);
+        \Log::info('Employee created:', ['employee' => $employee]);
+
+        $token = Str::random(60);
+
+        Invitation::create([
+            'email_personal' => $employee->email_personal,
+            'token' => $token,
+        ]);
+
+
+        $this->sendInvitation($employee->email_personal, $token, $request->defaultPassword);
+
+        $employee->update([
+            'processed' => true,
+            'verified' => false,
+        ]);
+
+        return response()->json([
+            'message' => 'Employee created, invitation sent, and status updated successfully',
+            'employee' => $employee
+        ], 201);
     }
 
-    private function sendInvitation($data, $token)
-    {
-        $to = $data['email_personal']; // Send invitation to personal email
-        $subject = 'Invitation to Join';
-        $verificationUrl = url('/verify/' . $token); // Adjust URL as needed
-        $message = "You have been invited. Please use the following default password to update your password: {$data['defaultPassword']}. Click the following link to verify: {$verificationUrl}";
 
-        Mail::raw($message, function($mail) use ($to, $subject) {
-            $mail->to($to)
+    private function sendInvitation($email, $token, $defaultPassword)
+    {
+        $subject = 'Invitation to Join';
+        $verificationUrl = url('/verify/' . $token); 
+        $message = "You have been invited. Please use the following default password to update your password: {$defaultPassword}. Click the following link to verify: {$verificationUrl}";
+
+        Mail::raw($message, function($mail) use ($email, $subject) {
+            $mail->to($email)
                  ->subject($subject);
         });
     }
 
-// Handle employee authentication and password update
-
-
-
-    public function showResetForm($token)
-    {
-        $exists = DB::table('invitations')->where('token', $token)->exists();
-
-        if ($exists) {
-            return view('employee_reset_form')->with('token', $token);
-        } else {
-            return  'Invalid token.';
+// EMPLOYEE DEFAULT_PASSWORD VERIFY
+public function employee_verify(Request $request)
+{
+  $rules = [
+        'defaultPassword' => 'required|string|size:6',
+    ];
+    $validator = Validator::make($request->all(), $rules);
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 400);
+    }
+ 
+    $hashedPasswords = Employee::pluck('defaultPassword');
+    foreach ($hashedPasswords as $hashedPassword) {
+        if (Hash::check($request->input('defaultPassword'), $hashedPassword)) {
+            return response()->json(['message' => 'Password Verified!'], 200);
         }
     }
+    return response()->json(['message' => 'The default password is incorrect.'], 400);
+}
 
+
+// EMPLOYEE AUTHENTICATE
 public function employee_authenticate(Request $request)
 {
-    // Validate the request
+
     $request->validate([
         'defaultPassword' => 'required|string',
-        'newPassword' => 'required|string|min:2',
-        'confirm_password' => 'required|string|min:2|same:newPassword'
+        'newPassword' => 'required|string|size:6',
+        'confirm_password' => 'required|string|size:6|same:newPassword'
     ]);
 
-    // Fetch all employees
     $employees = Employee::all();
     foreach ($employees as $employee) {
         if (Hash::check($request->input('defaultPassword'), $employee->defaultPassword)) {
-            $employee->defaultPassword = Hash::make($request->input('newPassword'));
+            $employee->defaultPassword = $request->input('newPassword');
+            $employee->verified = true;
             $employee->save();
 
-            return response()->json(['message' => 'Password updated successfully!'], 200);
+            return response()->json(['message' => 'Password verified successfully!'], 200);
         }
     }
 
-    return response()->json(['message' => 'The default password is incorrect.'], 400);
+    return response()->json(['message' => 'The default password to be verified is incorrect.'], 400);
 }
 
 
@@ -126,46 +158,60 @@ public function employee_authenticate(Request $request)
         return response()->json($employees);
     }
 
-    // UPDATE AN EMPLOYEE
-    public function employee_edit(Request $request)
-    {
-        $validated = $request->validate([
-            'emp_id' => 'required|exists:employeed,emp_id',
-            'emp_fullname' => 'required|string|max:255',
-            'email_personal' => 'required|email',
-            'email_company' => 'required|email',
-            'department' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'defaultPassword' => 'required|string|min:6',
-        ]);
+   
+ // UPDATE AN EMPLOYEE
+   
 
-        $employee = Employee::where('emp_id', $request->input('emp_id'))->first();
-        if ($employee) {
-            // Update employee details
-            $employee->emp_fullname = $request->input('emp_fullname');
-            $employee->email_personal = $request->input('email_personal');
-            $employee->email_company = $request->input('email_company');
-            $employee->department = $request->input('department');
-            $employee->position = $request->input('position');
-            $employee->defaultPassword = $request->input('defaultPassword');
-            $employee->hod_id = session('hod_id');  // Assuming hod_id is stored in session
-            $employee->save();
+public function employee_edit(Request $request, $id)
+{
+    $rules = [
+        'emp_fullname' => 'required|string|max:255',
+        'email_personal' => 'required|email',
+        'email_company' => 'required|email',
+        'department' => 'required|string|max:255',
+        'position' => 'required|string|max:255',
+        'defaultPassword' => 'required|string|min:6', 
+        'processed' => 'required|boolean',
+        'verified' => 'required|boolean',
+    ];
 
-            return response()->json(['message' => 'Employee updated successfully!']);
-        } else {
-            return response()->json(['message' => 'Employee not found.'], 404);
-        }
+
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
     }
 
+    $validated = $validator->validated();
+
+    $employee = Employee::find($id);
+    $user = JWTAuth::parseToken()->authenticate();
+    $hod_id = $user->hod_id;
+
+    if ($employee) {
+        $employee->emp_fullname = $validated['emp_fullname'];
+        $employee->email_personal = $validated['email_personal'];
+        $employee->email_company = $validated['email_company'];
+        $employee->department = $validated['department'];
+        $employee->position = $validated['position'];
+        $employee->defaultPassword = $validated['defaultPassword']; 
+        $employee->processed = $validated['processed'];
+        $employee->verified = $validated['verified'];
+        $employee->hod_id = $hod_id; 
+        $employee->save();
+
+        return response()->json(['message' => 'Employee updated successfully!']);
+    } else {
+        return response()->json(['message' => 'Employee not found.'], 404);
+    }
+}
+
+
     // DELETE AN EMPLOYEE
-    public function deleteEmployee(Request $request)
+    public function deleteEmployee($id)
     {
-        $validated = $request->validate([
-            'emp_id' => 'required|exists:employeed,emp_id',
-        ]);
-
-        $employee = Employee::where('emp_id', $request->input('emp_id'))->first();
-
+        
+        $employee = Employee::find($id);
         if ($employee) {
             $employee->delete();
             return response()->json(['message' => 'Employee deleted successfully!'], 200);
