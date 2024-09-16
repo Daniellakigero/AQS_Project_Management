@@ -4,15 +4,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\LoginAuthController;
-<<<<<<< HEAD
+
 use App\Http\Controllers\HodController;
 use App\Http\Controllers\PasswordResetController;
-=======
+
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\PasswordResetController;
-use App\Http\Controllers\HodController;
+
 use App\Http\Controllers\TaskController; 
->>>>>>> 497c2fed6052044c005c345f2bf1750b4eab1485
+
 use App\Http\Middleware\JWTAuthenticate;
 
 Route::get('/user', function (Request $request) {
@@ -20,14 +19,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 // HOD LOGIN
-<<<<<<< HEAD
-Route::post('/login', [LoginAuthController::class, 'login'])->name('login');
-// HOD SIGNUP
-
-Route::post('/hod/signup', [HodController::class, 'store']);
-=======
 Route::post('/login', [LoginAuthController::class, 'login']);
->>>>>>> 497c2fed6052044c005c345f2bf1750b4eab1485
 
 // HOD PASSWORD RESET WITH LINK
 Route::post('forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
