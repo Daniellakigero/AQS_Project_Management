@@ -1,39 +1,60 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Employee extends Model
+class Employee extends Authenticatable implements JWTSubject
 {
     use HasFactory;
-   protected $table = 'employeed';
-   protected $primaryKey = 'emp_id';  
-   protected $fillable = [
+
+    protected $table = 'employeed';
+    protected $primaryKey = 'emp_id';
+    public $timestamps = true;
+
+    protected $fillable = [
         'emp_fullname',
         'email_personal',
         'email_company',
         'department',
         'position',
         'defaultPassword',
-        'processed', 
-        'verified',   
+        'processed',
+        'verified',
         'hod_id',
     ];
+
+    // RELATIONSHIP TO HOD
     public function hod()
     {
         return $this->belongsTo(Hod::class, 'hod_id');
     }
-   public function setDefaultPasswordAttribute($value)
+
+    // RELATIONSHIP WITH TASK
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'emp_id');
+    }
+
+    // HASHING PASSWORD
+    public function setDefaultPasswordAttribute($value)
     {
         $this->attributes['defaultPassword'] = Hash::make($value);
     }
 
-//   RELATIONSHIP WITH TASK 
-    public function tasks()
+    // JWTSubject methods
+    public function getJWTIdentifier()
     {
-        return $this->hasMany(Task::class, 'emp_id');
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [
+            'emp_id' => $this->emp_id,
+            'hod_id' => $this->hod_id,
+        ];
     }
 }
