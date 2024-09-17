@@ -47,4 +47,8 @@ class Hod extends Authenticatable implements JWTSubject
             'hod_id' => $this->hod_id,
         ];
     }
+   
+
+
+
 }

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\Project;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProjectController extends Controller
 {
@@ -13,13 +13,18 @@ class ProjectController extends Controller
 //  CREATE PROJECT
     public function create(Request $request)
     {
+\Log::info('Request data:', ['request' => $request->all()]);
+\Log::info('Files received:', ['files' => $request->file()]);
+
     $validatedData = $request->validate([
-    'project_name' => 'required|string|max:255',
+    'project_name' => 'nullable|string|max:255',
     'project_description' => 'nullable|string',
     'project_file' => 'nullable|file|mimes:pdf,txt|max:2048',
-    'project_category' => 'required|string|max:255',
-    'client' => 'required|string|max:255',
+    'project_category' => 'nullable|string|max:255',
+    'client' => 'nullable|string|max:255',
     ]);
+
+\Log::info('Request data:', ['data' => $validatedData]);
 
         // GET AUTHENTICATED USER
         $user = JWTAuth::parseToken()->authenticate();
@@ -79,16 +84,13 @@ public function destroy($id)
     }
 
 
-// UPDATE A PROJECT BY ID
-
-
-
+// UPDATE PROJECT
 public function update(Request $request, $id)
 {
-    // Log incoming request data
-    \Log::info('Incoming request data:', $request->all());
+    \Log::info('Headers:', ['headers' => $request->headers->all()]);
+    \Log::info('Request data:', ['request' => $request->all()]);
+    \Log::info('Files received:', ['files' => $request->file()]);
 
-    // Validate incoming request
     $validatedData = $request->validate([
         'project_name' => 'nullable|string|max:255',
         'project_description' => 'nullable|string',
@@ -96,14 +98,29 @@ public function update(Request $request, $id)
         'project_category' => 'nullable|string|max:255',
         'client' => 'nullable|string|max:255',
     ]);
-    return  $validatedData;   // Log the validated data
-    \Log::info('Validated update project data:', $validatedData);
+
+    $hod = JWTAuth::parseToken()->authenticate();
+
+    if (!$hod) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $project = Project::where('project_id', $id)
+                      ->where('hod_id', $hod->hod_id)
+                      ->first();
+
+    if (!$project) {
+        return response()->json(['error' => 'Project not found or not authorized'], 404);
+    }
+
+    $project->update($validatedData);
+    \Log::info('Project updated:', ['project_id' => $id, 'data' => $validatedData]);
+
+    return response()->json([
+        'message' => 'Project updated successfully',
+        'project' => $project
+    ]);
 }
-
-
-
-
-
 
 
 }

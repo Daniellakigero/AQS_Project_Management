@@ -1,9 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use App\Models\Hod;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -17,7 +16,7 @@ class LoginAuthController extends Controller
         ]);
 
         $hod = Hod::where('email', $request->email)->first();
-
+        // return $hod;
         if ($hod && Hash::check($request->password, $hod->password)) {
             $token = JWTAuth::fromUser($hod);
             return response()->json(['message' => 'Login successful', 'token' => $token]);
