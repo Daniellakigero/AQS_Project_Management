@@ -7,7 +7,7 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\HodController;
 use App\Http\Controllers\PusherController;
-use App\Http\Controllers\MessageController;
+
 
 // HOD SIGNUP
 // Route::get('/hod/signup', function () {

@@ -1,35 +1,29 @@
-# Use an official PHP runtime as a parent image
 FROM php:8.2-fpm
 
-# Set working directory
-WORKDIR /var/www/html
-
-# Install dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
     zip \
     unzip \
     git \
     curl \
-    libonig-dev \
-    libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+    libpq-dev && \
+    docker-php-ext-configure pgsql --with-pgsql && \
+    docker-php-ext-install pgsql pdo_pgsql && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy existing application directory contents
+COPY php.ini /usr/local/etc/php/conf.d/
+
 COPY . /var/www/html
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+WORKDIR /var/www/html
 
-# Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www/html
-
-# Expose port 9000 and start PHP-FPM server
 EXPOSE 9000
+
 CMD ["php-fpm"]

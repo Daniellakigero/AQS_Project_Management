@@ -1,7 +1,6 @@
-version: '3.8'
 services:
   web:
-    image: nginx:latest
+    image: nginx:alpine
     ports:
       - "80:80"
     volumes:
@@ -9,10 +8,32 @@ services:
       - .:/var/www/html
     depends_on:
       - php
+      - postgres 
+
   php:
-    build:
-      context: .
-    expose:
-      - "9000"
+    image: php:8.2-fpm
     volumes:
       - .:/var/www/html
+    depends_on:
+      - postgres 
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: dpg-crlp6hlumphs73eau8rg-a
+      DB_PORT: 5432 
+      DB_DATABASE: aqs_pmgt_psql 
+      DB_USERNAME: aqs_pmgt_psql_user 
+      DB_PASSWORD: "qJMw1eqj6tbJhlwF7RMWfR30oiWcOdVG"  
+
+  postgres:
+    image: postgres:13-alpine  
+    environment:
+      POSTGRES_DB: aqs_pmgt_psql  
+      POSTGRES_USER: aqs_pmgt_psql_user
+      POSTGRES_PASSWORD: "qJMw1eqj6tbJhlwF7RMWfR30oiWcOdVG"  
+    ports:
+      - "5432:5432" 
+    volumes:
+      - db_data:/var/lib/postgresql/data  
+
+volumes:
+  db_data:
